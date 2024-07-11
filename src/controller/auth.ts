@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import * as authService from "../service/auth";
 import config from "../config";
 import { sign, verify } from "jsonwebtoken";
+import { HTTPSSTATUS } from "../enums/statusNumber";
 
 /**
  * Controller function to handle user signup.
@@ -43,7 +44,7 @@ export async function refresh(req: Request, res: Response) {
   const { authorization } = req.headers;
 
   if (!authorization) {
-    res.status(404).json({
+    res.status(HTTPSSTATUS.NOT_FOUND).json({
       error: "Invalid token",
     });
     return;
@@ -52,7 +53,7 @@ export async function refresh(req: Request, res: Response) {
   const token = authorization.split(" ");
 
   if (token.length !== 2 || token[0] !== "Bearer") {
-    res.status(404).json({
+    res.status(HTTPSSTATUS.NOT_FOUND).json({
       error: "Invalid method",
     });
     return;
@@ -60,7 +61,7 @@ export async function refresh(req: Request, res: Response) {
 
   verify(token[1], config.jwt.secret!, (error, data) => {
     if (error) {
-      res.status(404).json({
+      res.status(HTTPSSTATUS.NOT_FOUND).json({
         error: error.message,
       });
     }
@@ -74,7 +75,7 @@ export async function refresh(req: Request, res: Response) {
       const accessToken = sign(payload, config.jwt.secret!);
       const refreshToken = token[1];
 
-      res.status(200).json({
+      res.status(HTTPSSTATUS.OK).json({
         accessToken,
         refreshToken,
       });
